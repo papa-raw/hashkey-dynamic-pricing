@@ -3,5 +3,6 @@ node_modules/
 .env
 .env.local
 *.pem
-*.png
+logo.png
 .DS_Store
+.vercel
