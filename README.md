@@ -17,7 +17,7 @@ Merchants define pricing rules tied to real-world data feeds. When a customer pa
 3. **Settles via HSP** — USDC payment on HashKey Chain
 4. **Attests the price onchain** — permanent proof of why the price was what it was
 
-A $10 item becomes $5 at 3am in Hong Kong with low gas. The attestation records exactly which oracle values drove that price. Auditable forever.
+A merchant offering cross-border payments sets a loyalty rule: 20% discount for wallets with 50+ transactions. A returning customer pays $8 instead of $10 — and the onchain attestation records the exact rule that matched, the oracle value (67 txns), and how the final price was derived. Verifiable by anyone, permanently.
 
 ## Track
 
