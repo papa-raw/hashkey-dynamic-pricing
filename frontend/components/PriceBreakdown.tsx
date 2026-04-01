@@ -107,11 +107,14 @@ export function PriceBreakdown({ result, loading }: { result: PriceResult | null
                 }`}
               >
                 <Icon className={`w-4 h-4 flex-shrink-0 ${c.matched ? 'text-pp-teal' : 'text-pp-tertiary'}`} />
-                <span className="flex-1 truncate">{c.rule.label}</span>
-                <span className="font-mono text-xs tabular-nums text-pp-secondary">
-                  {formatOracleValue(c.rule.conditionType, c.oracleValue)}
-                </span>
-                {c.matched ? <Check className="w-3.5 h-3.5 text-pp-teal" /> : <X className="w-3.5 h-3.5 text-pp-tertiary/50" />}
+                <div className="flex-1 min-w-0">
+                  <span className="truncate block">{c.rule.label}</span>
+                  <span className="text-[11px] text-pp-tertiary">
+                    Oracle: {formatOracleValue(c.rule.conditionType, c.oracleValue)}
+                    {c.matched && <> — saves {(c.rule.adjustmentBps / -100).toFixed(0)}%</>}
+                  </span>
+                </div>
+                {c.matched ? <Check className="w-3.5 h-3.5 text-pp-teal flex-shrink-0" /> : <X className="w-3.5 h-3.5 text-pp-tertiary/50 flex-shrink-0" />}
               </motion.div>
             );
           })}
@@ -126,7 +129,10 @@ export function PriceBreakdown({ result, loading }: { result: PriceResult | null
           transition={{ delay: 0.6 }}
           className="mx-6 mb-5 bg-pp-blue-sub/50 border border-pp-blue/20 rounded-lg px-4 py-3 text-sm text-pp-blue-hover"
         >
-          Applied: <span className="font-medium text-pp-text">{result.bestDiscount.rule.label}</span>
+          Best discount applied: <span className="font-medium text-pp-text">{result.bestDiscount.rule.label}</span>
+          <span className="block text-xs text-pp-tertiary mt-1">
+            ${result.basePrice.toFixed(2)} × {(result.bestDiscount.rule.adjustmentBps / -100).toFixed(0)}% off = ${result.finalPrice.toFixed(2)} USDC
+          </span>
         </motion.div>
       )}
     </motion.div>
