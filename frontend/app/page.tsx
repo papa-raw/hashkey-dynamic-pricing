@@ -29,7 +29,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetch('/api/attestation').then(r => r.json()).then(d => setProofCount(d.attestations?.length ?? 0)).catch(() => {});
+    fetch('/api/rules').then(r => r.json()).then(d => { if (d.rules?.length) setRules(d.rules); }).catch(() => {});
   }, []);
+
+  function handleRulesChange(newRules: PriceRule[]) {
+    setRules(newRules);
+    fetch('/api/rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rules: newRules }) }).catch(() => {});
+  }
 
   return (
     <div className="p-6 max-w-[960px]">
@@ -106,7 +112,7 @@ export default function DashboardPage() {
 
           {/* Rule editor */}
           <div className="px-5 pb-5">
-            <RuleEditor rules={rules} onRulesChange={setRules} />
+            <RuleEditor rules={rules} onRulesChange={handleRulesChange} />
           </div>
         </div>
       </motion.div>
