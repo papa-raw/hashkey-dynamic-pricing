@@ -24,17 +24,22 @@ const FEEDS = [
 ];
 
 export default function DashboardPage() {
-  const [rules, setRules] = useState<PriceRule[]>(DEFAULT_RULES);
+  const [rules, setRules] = useState<PriceRule[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dc-rules');
+      if (saved) try { return JSON.parse(saved); } catch {}
+    }
+    return DEFAULT_RULES;
+  });
   const [proofCount, setProofCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('/api/attestation').then(r => r.json()).then(d => setProofCount(d.attestations?.length ?? 0)).catch(() => {});
-    fetch('/api/rules').then(r => r.json()).then(d => { if (d.rules?.length) setRules(d.rules); }).catch(() => {});
   }, []);
 
   function handleRulesChange(newRules: PriceRule[]) {
     setRules(newRules);
-    fetch('/api/rules', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rules: newRules }) }).catch(() => {});
+    localStorage.setItem('dc-rules', JSON.stringify(newRules));
   }
 
   return (
@@ -78,7 +83,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <Link href="/checkout" className="flex items-center gap-1.5 text-sm font-medium text-pp-blue hover:text-pp-blue-hover transition-colors flex-shrink-0 ml-4">
-                Test checkout <ArrowUpRight className="w-3.5 h-3.5" />
+                Checkout <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 

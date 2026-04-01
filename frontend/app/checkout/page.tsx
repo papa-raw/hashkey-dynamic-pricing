@@ -27,8 +27,13 @@ export default function CheckoutPage() {
   const computePrice = useCallback(async (loc?: { uid: string; lat: number; lng: number }) => {
     setLoading(true);
     try {
+      // Read merchant rules from localStorage (set by dashboard)
+      let rules;
+      try { rules = JSON.parse(localStorage.getItem('dc-rules') || 'null'); } catch {}
+
       const body: Record<string, unknown> = { walletAddress: address || '0x' + '0'.repeat(40), basePrice };
       if (loc) { body.lat = loc.lat; body.lng = loc.lng; }
+      if (rules) { body.rules = rules; }
       const res = await fetch('/api/price', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const data = await res.json();
       setPriceResult(data);
