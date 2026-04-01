@@ -5,6 +5,17 @@ import type { PriceResult } from '@/lib/types';
 import { useEffect, useState } from 'react';
 
 const ICONS = { gas: Zap, time: Clock, reputation: Award, location: MapPin } as const;
+const JURISDICTIONS: Record<number, string> = { 0: 'Global', 1: 'Hong Kong', 2: 'Singapore', 3: 'Tokyo', 4: 'London', 5: 'New York', 6: 'Berlin' };
+
+function formatOracleValue(type: string, value: number): string {
+  switch (type) {
+    case 'gas': return `${value.toFixed(2)} gwei`;
+    case 'reputation': return `${value} txns`;
+    case 'time': return `${value}:00 local`;
+    case 'location': return JURISDICTIONS[value] || `zone ${value}`;
+    default: return String(value);
+  }
+}
 const ease = [0.16, 1, 0.3, 1] as const;
 
 function AnimatedPrice({ value, className }: { value: number; className: string }) {
@@ -98,7 +109,7 @@ export function PriceBreakdown({ result, loading }: { result: PriceResult | null
                 <Icon className={`w-4 h-4 flex-shrink-0 ${c.matched ? 'text-pp-teal' : 'text-pp-tertiary'}`} />
                 <span className="flex-1 truncate">{c.rule.label}</span>
                 <span className="font-mono text-xs tabular-nums text-pp-secondary">
-                  {typeof c.oracleValue === 'number' ? (Number.isInteger(c.oracleValue) ? c.oracleValue : c.oracleValue.toFixed(2)) : c.oracleValue}
+                  {formatOracleValue(c.rule.conditionType, c.oracleValue)}
                 </span>
                 {c.matched ? <Check className="w-3.5 h-3.5 text-pp-teal" /> : <X className="w-3.5 h-3.5 text-pp-tertiary/50" />}
               </motion.div>
