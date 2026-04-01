@@ -1,0 +1,14 @@
+_ref/
+keys/
+*.docx
+node_modules/
+.next/
+.env
+.env.local
+*.pem
+secrets.enc
+cache/
+artifacts/
+typechain-types/
+coverage/
+.DS_Store

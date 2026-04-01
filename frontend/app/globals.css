@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pp-teal: #319795;
+  --pp-teal-glow: #2DD4BF;
+}
+
+html {
+  color-scheme: dark;
+}
+
+.font-sans { font-variant-numeric: tabular-nums; }
+
+body {
+  background-color: #0C1220;
+  background-image:
+    radial-gradient(ellipse at 50% -10%, rgba(43, 108, 176, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(49, 151, 149, 0.02) 0%, transparent 40%);
+  color: #E2E8F0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Oracle ribbon live-data indicator */
+.oracle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pp-teal);
+  box-shadow: 0 0 6px var(--pp-teal);
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--pp-teal); }
+  50% { opacity: 0.4; box-shadow: 0 0 14px var(--pp-teal-glow), 0 0 28px var(--pp-teal); }
+}
+
+/* Attestation materialize — the signature moment */
+.attestation-new {
+  animation: materialize 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes materialize {
+  0% {
+    border-color: rgba(45, 212, 191, 0.6);
+    box-shadow: 0 0 24px rgba(45, 212, 191, 0.25), inset 0 0 12px rgba(49, 151, 149, 0.06);
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    border-color: rgba(49, 151, 149, 0.2);
+    box-shadow: none;
+  }
+}
+
+/* Globe for location proof */
+.location-globe {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #1A2029 0%, #0B0F14 80%);
+  border: 1px solid rgba(49, 151, 149, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.location-globe::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(49, 151, 149, 0.08);
+}
+
+.location-globe::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(49, 151, 149, 0.06);
+}
+
+.location-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pp-teal-glow);
+  box-shadow: 0 0 8px var(--pp-teal-glow), 0 0 16px rgba(49, 151, 149, 0.4);
+  position: absolute;
+}
+
+/* Condition flash on match */
+@keyframes condition-flash {
+  0% { background-color: rgba(49, 151, 149, 0.25); }
+  100% { background-color: transparent; }
+}
+
+.condition-matched {
+  animation: condition-flash 0.6s ease-out;
+}
+
+/* Tabular nums for price animation */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle noise texture overlay */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attestation-new, .oracle-dot, .condition-matched { animation: none; }
+}

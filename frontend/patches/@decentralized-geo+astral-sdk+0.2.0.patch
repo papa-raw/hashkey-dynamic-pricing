@@ -1,0 +1,94 @@
+diff --git a/node_modules/@decentralized-geo/astral-sdk/dist/index.js b/node_modules/@decentralized-geo/astral-sdk/dist/index.js
+index 725d4dd..4eca9a2 100644
+--- a/node_modules/@decentralized-geo/astral-sdk/dist/index.js
++++ b/node_modules/@decentralized-geo/astral-sdk/dist/index.js
+@@ -831,6 +831,13 @@ var init_config = __esm({
+             rpcUrl: "https://sepolia.base.org",
+             easContractAddress: "0x4200000000000000000000000000000000000021",
+             schemaUID: "0xba4171c92572b1e4f241d044c32cdf083be9fd946b8766977558ca6378c824e2"
++          },
++          "133": {
++            chain: "hashkey-testnet",
++            deploymentBlock: 1,
++            rpcUrl: "https://testnet.hsk.xyz",
++            easContractAddress: "0x4200000000000000000000000000000000000021",
++            schemaUID: "0xba4171c92572b1e4f241d044c32cdf083be9fd946b8766977558ca6378c824e2"
+           }
+         }
+       }
+@@ -2740,24 +2747,16 @@ var OnchainRegistrar = class {
+       }
+       this.eas = new easSdk.EAS(this.contractAddress);
+       if (this.signer) {
+-        this.eas.connect(this.signer);
++        try { this.eas.connect(this.signer); } catch (e) { console.warn("[EAS] OnchainRegistrar connect failed (offchain still works):", e.message); }
+       } else if (this.provider) {
+-        this.eas.connect(this.provider);
++        try { this.eas.connect(this.provider); } catch (e) { console.warn("[EAS] OnchainRegistrar connect failed:", e.message); }
+       }
+       this.schemaString = getSchemaString();
+       this.schemaEncoder = new easSdk.SchemaEncoder(this.schemaString);
+       this.schemaEncoderCache.set(this.schemaString, this.schemaEncoder);
+     } catch (error) {
+-      throw new exports.ChainConnectionError(
+-        "Failed to initialize EAS modules",
+-        error instanceof Error ? error : void 0,
+-        {
+-          chainId: this.chainId,
+-          chainName: this.chainName,
+-          contractAddress: this.contractAddress,
+-          schemaUID: this.schemaUID
+-        }
+-      );
++      console.warn("OnchainRegistrar EAS init failed (non-fatal for offchain):", error instanceof Error ? error.message : error);
++      return;
+     }
+   }
+   /**
+diff --git a/node_modules/@decentralized-geo/astral-sdk/dist/index.mjs b/node_modules/@decentralized-geo/astral-sdk/dist/index.mjs
+index 9b3def6..7073125 100644
+--- a/node_modules/@decentralized-geo/astral-sdk/dist/index.mjs
++++ b/node_modules/@decentralized-geo/astral-sdk/dist/index.mjs
+@@ -829,6 +829,13 @@ var init_config = __esm({
+             rpcUrl: "https://sepolia.base.org",
+             easContractAddress: "0x4200000000000000000000000000000000000021",
+             schemaUID: "0xba4171c92572b1e4f241d044c32cdf083be9fd946b8766977558ca6378c824e2"
++          },
++          "133": {
++            chain: "hashkey-testnet",
++            deploymentBlock: 1,
++            rpcUrl: "https://testnet.hsk.xyz",
++            easContractAddress: "0x4200000000000000000000000000000000000021",
++            schemaUID: "0xba4171c92572b1e4f241d044c32cdf083be9fd946b8766977558ca6378c824e2"
+           }
+         }
+       }
+@@ -2738,24 +2745,16 @@ var OnchainRegistrar = class {
+       }
+       this.eas = new EAS(this.contractAddress);
+       if (this.signer) {
+-        this.eas.connect(this.signer);
++        try { this.eas.connect(this.signer); } catch (e) { console.warn("[EAS] OnchainRegistrar connect failed (offchain still works):", e.message); }
+       } else if (this.provider) {
+-        this.eas.connect(this.provider);
++        try { this.eas.connect(this.provider); } catch (e) { console.warn("[EAS] OnchainRegistrar connect failed:", e.message); }
+       }
+       this.schemaString = getSchemaString();
+       this.schemaEncoder = new SchemaEncoder$1(this.schemaString);
+       this.schemaEncoderCache.set(this.schemaString, this.schemaEncoder);
+     } catch (error) {
+-      throw new ChainConnectionError(
+-        "Failed to initialize EAS modules",
+-        error instanceof Error ? error : void 0,
+-        {
+-          chainId: this.chainId,
+-          chainName: this.chainName,
+-          contractAddress: this.contractAddress,
+-          schemaUID: this.schemaUID
+-        }
+-      );
++      console.warn("OnchainRegistrar EAS init failed (non-fatal for offchain):", error instanceof Error ? error.message : error);
++      return;
+     }
+   }
+   /**
