@@ -26,6 +26,9 @@ const FEEDS = [
 export default function DashboardPage() {
   const [rules, setRules] = useState<PriceRule[]>(() => {
     if (typeof window !== 'undefined') {
+      // Migration: clear stale rules from before label cleanup (v2)
+      const version = localStorage.getItem('dc-rules-v');
+      if (version !== '2') { localStorage.removeItem('dc-rules'); localStorage.setItem('dc-rules-v', '2'); }
       const saved = localStorage.getItem('dc-rules');
       if (saved) try { return JSON.parse(saved); } catch {}
     }
