@@ -61,5 +61,6 @@ function getJurisdiction(lat: number, lng: number) {
   if (lat > 51 && lat < 52 && lng > -1 && lng < 1) return { code: 4, name: 'London', region: 'EMEA' };
   if (lat > 40 && lat < 41 && lng > -75 && lng < -73) return { code: 5, name: 'New York', region: 'Americas' };
   if (lat > 52 && lat < 53 && lng > 13 && lng < 14) return { code: 6, name: 'Berlin', region: 'EMEA' };
+  if (lat > 41.3 && lat < 41.5 && lng > 2.0 && lng < 2.3) return { code: 7, name: 'Barcelona', region: 'EMEA' };
   return { code: 0, name: 'Global', region: 'Global' };
 }

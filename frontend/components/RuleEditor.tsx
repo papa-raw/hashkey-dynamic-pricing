@@ -9,6 +9,7 @@ const JURISDICTIONS = [
   { code: 4, name: 'London' },
   { code: 5, name: 'New York' },
   { code: 6, name: 'Berlin' },
+  { code: 7, name: 'Barcelona' },
   { code: 0, name: 'Global (any)' },
 ];
 

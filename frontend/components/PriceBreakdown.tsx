@@ -5,7 +5,7 @@ import type { PriceResult } from '@/lib/types';
 import { useEffect, useState } from 'react';
 
 const ICONS = { gas: Zap, time: Clock, reputation: Award, location: MapPin } as const;
-const JURISDICTIONS: Record<number, string> = { 0: 'Global', 1: 'Hong Kong', 2: 'Singapore', 3: 'Tokyo', 4: 'London', 5: 'New York', 6: 'Berlin' };
+const JURISDICTIONS: Record<number, string> = { 0: 'Global', 1: 'Hong Kong', 2: 'Singapore', 3: 'Tokyo', 4: 'London', 5: 'New York', 6: 'Berlin', 7: 'Barcelona' };
 
 function formatOracleValue(type: string, value: number): string {
   switch (type) {
