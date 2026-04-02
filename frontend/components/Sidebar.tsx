@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Receipt, ShieldCheck, Activity, ExternalLink, Boxes, Workflow, Info, X as XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { EXPLORER_URL, PROOFPAY_ATTESTATION_ADDRESS, HSP_ADAPTER_ADDRESS, RULE_REGISTRY_ADDRESS, truncateAddress } from '@/lib/constants';
 
 const NAV = [
@@ -42,11 +43,11 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Info modal */}
-      {showInfo && (
+      {/* Info modal — rendered via portal to escape sidebar stacking context */}
+      {showInfo && typeof document !== 'undefined' && createPortal(
         <>
-        <div className="fixed inset-0 bg-[#0C1220] z-[100]" onClick={() => setShowInfo(false)} />
-        <div className="fixed inset-0 z-[101] flex items-center justify-center p-8" onClick={() => setShowInfo(false)}>
+        <div className="fixed inset-0 bg-[#0C1220] z-[9998]" onClick={() => setShowInfo(false)} />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-8" onClick={() => setShowInfo(false)}>
           <div className="bg-[#1A2230] border border-pp-border rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 text-xs text-pp-secondary space-y-4 shadow-2xl ring-1 ring-white/5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -129,7 +130,8 @@ export function Sidebar() {
             </div>
           </div>
         </div>
-        </>
+        </>,
+        document.body
       )}
 
       {/* Nav */}
