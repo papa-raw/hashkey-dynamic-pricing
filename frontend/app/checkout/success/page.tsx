@@ -44,11 +44,24 @@ function Content() {
       }
     }
 
-    // Small delay to ensure HSP redirect has settled
-    const timer = setTimeout(createAttestation, 2000);
-    // Fallback: keep polling in case the creation takes time
-    const to = setTimeout(() => setPolling(false), 30000);
-    return () => { clearTimeout(timer); clearTimeout(to); };
+    // Retry up to 5 times with increasing delay
+    let attempt = 0;
+    const maxAttempts = 5;
+    const delays = [2000, 4000, 6000, 10000, 15000];
+
+    function tryCreate() {
+      if (attempt >= maxAttempts) { setPolling(false); return; }
+      const delay = delays[attempt] || 10000;
+      attempt++;
+      setTimeout(async () => {
+        await createAttestation();
+        // If still polling (attestation not yet created), retry
+        if (!attestation) tryCreate();
+      }, delay);
+    }
+
+    tryCreate();
+    return () => { attempt = maxAttempts; }; // cancel on unmount
   }, [orderId]);
 
   return (

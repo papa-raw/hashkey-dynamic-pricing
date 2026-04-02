@@ -1,0 +1,13 @@
+1. <https://vercel.com/ecofrontiers/dynamic-checkout/settings/deployment-protection>
+2. <https://vercel.com/ecofrontiers/frontend/settings/deployment-protection>
+3. <https://vercel.com/ecofrontiers/hedera-hello-future/settings/deployment-protection>
+4. <https://vercel.com/ecofrontiers/synthesis/settings/deployment-protection>
+5. <https://vercel.com/ecofrontiers/agent-governance-sandbox/settings/deployment-protection>
+6. <https://vercel.com/ecofrontiers/ecofrontiers-website/settings/deployment-protection>
+7. <https://vercel.com/ecofrontiers/regen-atlas-ecospatial/settings/deployment-protection>
+8. <https://vercel.com/ecofrontiers/ai-mech-atlas-2/settings/deployment-protection>
+9. <https://vercel.com/ecofrontiers/ai-mech-atlas/settings/deployment-protection>
+10. <https://vercel.com/ecofrontiers/ra-april-26/settings/deployment-protection>
+11. <https://vercel.com/ecofrontiers/site/settings/deployment-protection>
+12. <https://vercel.com/ecofrontiers/pocket-simulator-2/settings/deployment-protection>
+13. <https://vercel.com/ecofrontiers/noodling/settings/deployment-protection>
