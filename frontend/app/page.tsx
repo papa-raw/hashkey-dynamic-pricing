@@ -31,6 +31,10 @@ export default function DashboardPage() {
     }
     return DEFAULT_RULES;
   });
+  const [stackingMode, setStackingMode] = useState<'best' | 'stack'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('dc-stacking') as 'best' | 'stack') || 'best';
+    return 'best';
+  });
   const [proofCount, setProofCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -40,6 +44,11 @@ export default function DashboardPage() {
   function handleRulesChange(newRules: PriceRule[]) {
     setRules(newRules);
     localStorage.setItem('dc-rules', JSON.stringify(newRules));
+  }
+
+  function handleStackingChange(mode: 'best' | 'stack') {
+    setStackingMode(mode);
+    localStorage.setItem('dc-stacking', mode);
   }
 
   return (
@@ -117,6 +126,26 @@ export default function DashboardPage() {
 
           {/* Rule editor */}
           <div className="px-5 pb-5">
+            {/* Stacking mode toggle */}
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-pp-border-sub">
+              <span className="text-xs text-pp-tertiary">Discount mode:</span>
+              <button
+                onClick={() => handleStackingChange('best')}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-all ${stackingMode === 'best' ? 'bg-pp-blue-sub text-pp-blue-hover font-medium' : 'text-pp-tertiary hover:text-pp-secondary'}`}
+              >
+                Best discount wins
+              </button>
+              <button
+                onClick={() => handleStackingChange('stack')}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-all ${stackingMode === 'stack' ? 'bg-pp-blue-sub text-pp-blue-hover font-medium' : 'text-pp-tertiary hover:text-pp-secondary'}`}
+              >
+                Stack all discounts
+              </button>
+              <Tooltip content={stackingMode === 'best' ? 'Only the single largest discount applies to each payment' : 'All matching discounts are added together (capped at 100%)'}>
+                <Info className="w-3 h-3 text-pp-tertiary/50 cursor-help" />
+              </Tooltip>
+            </div>
+
             <RuleEditor rules={rules} onRulesChange={handleRulesChange} />
           </div>
         </div>

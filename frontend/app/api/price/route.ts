@@ -10,8 +10,9 @@ const DEFAULT_RULES = [
 ];
 
 export async function POST(request: NextRequest) {
-  const { walletAddress, basePrice, lat, lng, rules } = await request.json();
+  const { walletAddress, basePrice, lat, lng, rules, stackingMode } = await request.json();
   const activeRules = rules && Array.isArray(rules) && rules.length > 0 ? rules : DEFAULT_RULES;
+  const mode = stackingMode === 'stack' ? 'stack' : 'best';
 
   const oracleData = await Promise.all([
     getGasPrice(),
@@ -19,6 +20,6 @@ export async function POST(request: NextRequest) {
     getWalletReputation(walletAddress || '0x0000000000000000000000000000000000000000'),
     ...(lat && lng ? [Promise.resolve(getLocationData(lat, lng))] : []),
   ]);
-  const result = evaluatePrice(basePrice, activeRules, oracleData);
+  const result = evaluatePrice(basePrice, activeRules, oracleData, mode);
   return NextResponse.json({ ...result, oracleData });
 }

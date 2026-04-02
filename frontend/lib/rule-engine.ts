@@ -1,10 +1,13 @@
 import type { OracleResult } from './oracle-adapters';
 import type { PriceRule, EvaluatedCondition } from './types';
 
+export type StackingMode = 'best' | 'stack';
+
 export function evaluatePrice(
   basePrice: number,
   rules: PriceRule[],
-  oracleData: OracleResult[]
+  oracleData: OracleResult[],
+  mode: StackingMode = 'best'
 ) {
   const conditions: EvaluatedCondition[] = [];
 
@@ -28,10 +31,19 @@ export function evaluatePrice(
   let totalAdjustmentBps = 0;
 
   if (matchedConditions.length > 0) {
-    bestDiscount = matchedConditions.reduce((best, c) => c.adjustmentBps < best.adjustmentBps ? c : best);
-    totalAdjustmentBps = bestDiscount.adjustmentBps;
+    if (mode === 'stack') {
+      // Sum all matched discounts
+      totalAdjustmentBps = matchedConditions.reduce((sum, c) => sum + c.adjustmentBps, 0);
+      // Cap at -10000 (100% off)
+      totalAdjustmentBps = Math.max(-10000, totalAdjustmentBps);
+      bestDiscount = matchedConditions[0]; // just for display
+    } else {
+      // Best single discount
+      bestDiscount = matchedConditions.reduce((best, c) => c.adjustmentBps < best.adjustmentBps ? c : best);
+      totalAdjustmentBps = bestDiscount.adjustmentBps;
+    }
   }
 
   const finalPrice = Math.max(0, basePrice * (1 + totalAdjustmentBps / 10000));
-  return { basePrice, finalPrice, conditions, bestDiscount, totalAdjustmentBps };
+  return { basePrice, finalPrice, conditions, bestDiscount, totalAdjustmentBps, mode, matchedCount: matchedConditions.length };
 }
