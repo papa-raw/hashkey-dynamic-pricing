@@ -45,7 +45,7 @@ export function Sidebar() {
       {/* Info modal */}
       {showInfo && (
         <>
-        <div className="fixed inset-0 bg-[#0C1220]/95 z-[100]" onClick={() => setShowInfo(false)} />
+        <div className="fixed inset-0 bg-[#0C1220] z-[100]" onClick={() => setShowInfo(false)} />
         <div className="fixed inset-0 z-[101] flex items-center justify-center p-8" onClick={() => setShowInfo(false)}>
           <div className="bg-[#1A2230] border border-pp-border rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 text-xs text-pp-secondary space-y-4 shadow-2xl ring-1 ring-white/5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
