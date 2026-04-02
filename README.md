@@ -48,9 +48,21 @@ Rule engine evaluates all merchant rules against oracle data
         |
 HSP settles USDC payment on HashKey Chain
   -> HMAC-SHA256 request signing + ES256K JWT merchant authorization
+  -> HSP checkout hosted page, customer approves USDC transfer
+  -> Routed through Cloudflare Worker proxy (HSP QA has bot detection)
+        |
+Customer redirected to success page
+  -> Payment details read from localStorage
+  -> /api/create-attestation called with full computation context
         |
 Price proof attested onchain (ProofPayAttestation contract)
   -> base price, final price, conditions evaluated, oracle values, TEE proof UID
+  -> tx hash returned, visible in attestation explorer
+        |
+HSP webhook (backup path)
+  -> callbackUrl set in order creation
+  -> /api/webhook receives payment confirmation
+  -> Creates attestation if success page didn't already
 ```
 
 ---
@@ -104,7 +116,15 @@ Dynamic Checkout uses the HashKey Settlement Protocol for payment settlement wit
 
 The HSP client uses Node's built-in `crypto` module for both layers -- no external JWT library needed (jose v6 dropped ES256K support, so we sign manually).
 
-**Flow:** Create order -> customer redirected to HSP checkout -> customer approves USDC -> HSP settles onchain -> webhook confirms -> attestation created.
+**Flow:**
+1. Server creates HSP order (HMAC-signed request + ES256K JWT merchant auth)
+2. Request routed through Cloudflare Worker proxy (`hsp-proxy.pat-ef5.workers.dev`) -- HSP's QA environment has Cloudflare bot detection that blocks datacenter IPs
+3. Customer redirected to HSP's hosted checkout page
+4. Customer approves USDC transfer on HashKey Chain
+5. Customer returns to success page -> attestation created onchain
+6. HSP webhook (backup) confirms payment status
+
+**Attestation creation:** The success page triggers attestation creation immediately on return from HSP. Payment details (base price, final price, conditions, location proof UID) are persisted in localStorage before the HSP redirect and read back on the success page. This ensures the attestation includes the full computation context even though HSP's callback only provides the payment status.
 
 ---
 
