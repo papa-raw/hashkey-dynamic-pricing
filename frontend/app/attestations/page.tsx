@@ -108,10 +108,14 @@ export default function AttestationsPage() {
             let oracleValue = '';
             try {
               const conditions = JSON.parse(a.conditionsJson || '[]');
-              const matched = conditions.find((c: any) => c.matched);
-              if (matched) {
-                matchedRule = matched.rule?.label || matched.rule?.conditionType || 'Rule matched';
-                oracleValue = String(matched.oracleValue ?? '');
+              // Find the condition with the largest discount (most negative adjustmentBps)
+              const matchedConditions = conditions.filter((c: any) => c.matched);
+              const best = matchedConditions.length > 0
+                ? matchedConditions.reduce((a: any, b: any) => (a.adjustmentBps || 0) < (b.adjustmentBps || 0) ? a : b)
+                : null;
+              if (best) {
+                matchedRule = best.rule?.label || best.rule?.conditionType || 'Rule matched';
+                oracleValue = String(best.oracleValue ?? '');
               }
             } catch {}
 
