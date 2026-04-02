@@ -42,77 +42,90 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Info panel */}
+      {/* Info modal */}
       {showInfo && (
-        <div className="px-4 py-3 border-b border-pp-border-sub bg-pp-surface/50 text-[11px] text-pp-secondary space-y-3 overflow-y-auto max-h-[60vh]">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-widest text-pp-tertiary">About</span>
-            <button onClick={() => setShowInfo(false)} className="text-pp-tertiary hover:text-pp-text"><XIcon className="w-3 h-3" /></button>
-          </div>
+        <>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={() => setShowInfo(false)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" onClick={() => setShowInfo(false)}>
+          <div className="bg-pp-surface border border-pp-border rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 text-xs text-pp-secondary space-y-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Image src="/logo.svg" alt="Dynamic Checkout" width={20} height={24} />
+                <span className="font-head text-base font-semibold text-pp-text">Dynamic Checkout</span>
+              </div>
+              <button onClick={() => setShowInfo(false)} className="text-pp-tertiary hover:text-pp-text transition-colors p-1"><XIcon className="w-4 h-4" /></button>
+            </div>
 
-          <p className="leading-relaxed">
-            <span className="text-pp-text font-medium">Dynamic Checkout</span> is oracle-conditioned payment middleware on HashKey Chain. Merchants define pricing rules tied to real-world data feeds. Every payment is dynamically priced and permanently attested onchain.
-          </p>
-
-          <div>
-            <span className="text-pp-text font-medium block mb-1">How it works</span>
-            <ol className="space-y-1 text-pp-tertiary">
-              <li>1. Customer connects wallet at checkout</li>
-              <li>2. Astral Protocol creates a cryptographic location proof (EIP-712 via EAS)</li>
-              <li>3. Four oracle feeds evaluate: gas price, wallet reputation, local time, jurisdiction</li>
-              <li>4. Rule engine applies best discount (or stacks all)</li>
-              <li>5. HSP settles USDC payment on HashKey Chain</li>
-              <li>6. Price proof attested onchain with full computation record</li>
-            </ol>
-          </div>
-
-          <div>
-            <span className="text-pp-text font-medium block mb-1">Oracle Feeds</span>
-            <ul className="space-y-0.5 text-pp-tertiary">
-              <li><span className="text-pp-text">Gas Price</span> — reads block.basefee for network congestion</li>
-              <li><span className="text-pp-text">Wallet Rep</span> — transaction count on HashKey Chain</li>
-              <li><span className="text-pp-text">Time of Day</span> — local hour derived from Astral location proof</li>
-              <li><span className="text-pp-text">Jurisdiction</span> — geofence lookup from GPS coordinates</li>
-            </ul>
-          </div>
-
-          <div>
-            <span className="text-pp-text font-medium block mb-1">Astral Protocol</span>
-            <p className="text-pp-tertiary leading-relaxed">
-              Location proofs use the Ethereum Attestation Service (EAS), pre-deployed on HashKey Chain at the OP Stack predeploy address. The Astral schema is registered natively on chain 133, enabling EIP-712 offchain attestations that cryptographically prove a customer's location at payment time.
+            <p className="text-sm leading-relaxed text-pp-secondary">
+              Oracle-conditioned payment middleware on HashKey Chain. Merchants define pricing rules tied to real-world data feeds. Every payment is dynamically priced and permanently attested onchain.
             </p>
-          </div>
 
-          <div>
-            <span className="text-pp-text font-medium block mb-1">HSP (HashKey Settlement Protocol)</span>
-            <p className="text-pp-tertiary leading-relaxed">
-              Payment settlement uses HSP's REST API with dual authentication: HMAC-SHA256 request signing and ES256K JWT merchant authorization. Payments settle in USDC on HashKey Chain. The checkout creates an order, the customer approves on HSP's page, and a webhook confirms settlement.
-            </p>
-          </div>
+            <div>
+              <span className="text-pp-text font-medium text-sm block mb-2">How it works</span>
+              <ol className="space-y-1.5 text-pp-secondary">
+                <li className="flex gap-2"><span className="font-mono text-pp-tertiary w-4 flex-shrink-0">1</span> Customer connects wallet at checkout</li>
+                <li className="flex gap-2"><span className="font-mono text-pp-tertiary w-4 flex-shrink-0">2</span> Astral Protocol creates a cryptographic location proof (EIP-712 via EAS)</li>
+                <li className="flex gap-2"><span className="font-mono text-pp-tertiary w-4 flex-shrink-0">3</span> Four oracle feeds evaluate: gas price, wallet reputation, local time, jurisdiction</li>
+                <li className="flex gap-2"><span className="font-mono text-pp-tertiary w-4 flex-shrink-0">4</span> Rule engine applies best discount or stacks all (merchant configurable)</li>
+                <li className="flex gap-2"><span className="font-mono text-pp-tertiary w-4 flex-shrink-0">5</span> HSP settles USDC payment on HashKey Chain</li>
+                <li className="flex gap-2"><span className="font-mono text-pp-teal w-4 flex-shrink-0">6</span> <span className="text-pp-teal">Price proof attested onchain with full computation record</span></li>
+              </ol>
+            </div>
 
-          <div>
-            <span className="text-pp-text font-medium block mb-1">Price Attestations</span>
-            <p className="text-pp-tertiary leading-relaxed">
-              Every payment creates an onchain record in the ProofPayAttestation contract: base price, final price, which oracle conditions were evaluated, what values they returned, and which rule determined the discount. This creates a permanent, auditable proof of why every price was what it was.
-            </p>
-          </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-pp-raised/40 rounded-lg p-3">
+                <span className="text-pp-text font-medium block mb-1.5">Oracle Feeds</span>
+                <ul className="space-y-1 text-pp-tertiary text-[11px]">
+                  <li><span className="text-pp-secondary">Gas Price</span> — block.basefee</li>
+                  <li><span className="text-pp-secondary">Wallet Rep</span> — tx count</li>
+                  <li><span className="text-pp-secondary">Time of Day</span> — Astral location</li>
+                  <li><span className="text-pp-secondary">Jurisdiction</span> — geofence</li>
+                </ul>
+              </div>
+              <div className="bg-pp-raised/40 rounded-lg p-3">
+                <span className="text-pp-text font-medium block mb-1.5">Tech Stack</span>
+                <ul className="space-y-1 text-pp-tertiary text-[11px]">
+                  <li>Solidity 0.8.20 · Hardhat</li>
+                  <li>Next.js 15 · React 19 · Tailwind</li>
+                  <li>wagmi · RainbowKit · viem</li>
+                  <li>Astral SDK · EAS</li>
+                </ul>
+              </div>
+            </div>
 
-          <div>
-            <span className="text-pp-text font-medium block mb-1">Tech Stack</span>
-            <ul className="space-y-0.5 text-pp-tertiary">
-              <li>Solidity 0.8.20 · Hardhat · HashKey Chain (133)</li>
-              <li>Next.js 15 · React 19 · Tailwind · Framer Motion</li>
-              <li>wagmi v2 · RainbowKit · viem · ethers.js</li>
-              <li>Astral SDK · EAS · patch-package</li>
-            </ul>
-          </div>
+            <div>
+              <span className="text-pp-text font-medium block mb-1.5">Astral Protocol</span>
+              <p className="text-pp-tertiary leading-relaxed">
+                Location proofs use the Ethereum Attestation Service (EAS), pre-deployed on HashKey Chain at the OP Stack predeploy address. The Astral schema is registered natively on chain 133, enabling EIP-712 offchain attestations that cryptographically prove a customer's location at payment time. This powers jurisdiction-aware pricing — proof that the customer was actually where they claim.
+              </p>
+            </div>
 
-          <div className="pt-1">
-            <a href="https://github.com/papa-raw/hashkey-dynamic-pricing" target="_blank" rel="noopener noreferrer" className="text-pp-blue hover:text-pp-blue-hover transition-colors flex items-center gap-1">
-              GitHub <ExternalLink className="w-2.5 h-2.5" />
-            </a>
+            <div>
+              <span className="text-pp-text font-medium block mb-1.5">HSP (HashKey Settlement Protocol)</span>
+              <p className="text-pp-tertiary leading-relaxed">
+                Payment settlement uses HSP's REST API with dual auth: HMAC-SHA256 request signing and ES256K JWT merchant authorization (secp256k1 over cart hash). Payments settle in USDC on HashKey Chain. The checkout creates an order, the customer approves on HSP's page, and a webhook confirms settlement.
+              </p>
+            </div>
+
+            <div>
+              <span className="text-pp-text font-medium block mb-1.5">Price Attestations</span>
+              <p className="text-pp-tertiary leading-relaxed">
+                Every payment creates an onchain record: base price, final price, which conditions were evaluated, what oracle values were returned, and which rule determined the discount. A permanent, auditable proof of why every price was what it was.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2 border-t border-pp-border-sub">
+              <a href="https://github.com/papa-raw/hashkey-dynamic-pricing" target="_blank" rel="noopener noreferrer" className="text-pp-blue hover:text-pp-blue-hover transition-colors flex items-center gap-1 text-xs">
+                GitHub <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+              <a href="https://dynamic-checkout-mu.vercel.app" target="_blank" rel="noopener noreferrer" className="text-pp-blue hover:text-pp-blue-hover transition-colors flex items-center gap-1 text-xs">
+                Live Demo <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+              <span className="text-pp-tertiary text-[10px] ml-auto">PayFi Track · HashKey Chain Horizon Hackathon</span>
+            </div>
           </div>
         </div>
+        </>
       )}
 
       {/* Nav */}
