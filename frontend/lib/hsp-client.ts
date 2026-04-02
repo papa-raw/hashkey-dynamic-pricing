@@ -71,7 +71,8 @@ export async function createOrder(config: HSPConfig, params: {
   };
 
   const merchantAuth = await buildMerchantAuth(contents, config);
-  const body = canonicalJSON({ cart_mandate: { contents, merchant_authorization: merchantAuth }, redirect_url: params.redirectUrl || '' });
+  const webhookBase = process.env.NEXT_PUBLIC_APP_URL || 'https://dynamic-checkout-mu.vercel.app';
+  const body = canonicalJSON({ cart_mandate: { contents, merchant_authorization: merchantAuth }, redirect_url: params.redirectUrl || '', callbackUrl: `${webhookBase}/api/webhook` });
   const path = '/api/v1/merchant/orders';
   const headers = authHeaders('POST', path, '', body, config);
   headers['Accept'] = 'application/json';

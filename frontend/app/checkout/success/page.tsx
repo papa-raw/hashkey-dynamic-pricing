@@ -13,14 +13,42 @@ function Content() {
 
   useEffect(() => {
     if (!orderId) return;
-    const iv = setInterval(async () => {
+
+    // Read payment details from localStorage (saved by checkout page before redirect)
+    let paymentData: any = {};
+    try { paymentData = JSON.parse(localStorage.getItem('dc-last-payment') || '{}'); } catch {}
+
+    // Create the attestation immediately — don't wait for webhook
+    async function createAttestation() {
       try {
-        const res = await fetch(`/api/attestation?order=${orderId}`);
-        if (res.ok) { const d = await res.json(); if (d.proofId) { setAttestation(d); setPolling(false); } }
-      } catch {}
-    }, 3000);
-    const to = setTimeout(() => { setPolling(false); clearInterval(iv); }, 60000);
-    return () => { clearInterval(iv); clearTimeout(to); };
+        const res = await fetch('/api/create-attestation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId,
+            walletAddress: paymentData.walletAddress,
+            basePrice: paymentData.basePrice,
+            finalPrice: paymentData.finalPrice,
+            conditions: paymentData.conditions,
+            locationJson: paymentData.locationJson,
+            astralProofUid: paymentData.astralProofUid,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAttestation(data);
+          setPolling(false);
+        }
+      } catch (err) {
+        console.error('Attestation creation failed:', err);
+      }
+    }
+
+    // Small delay to ensure HSP redirect has settled
+    const timer = setTimeout(createAttestation, 2000);
+    // Fallback: keep polling in case the creation takes time
+    const to = setTimeout(() => setPolling(false), 30000);
+    return () => { clearTimeout(timer); clearTimeout(to); };
   }, [orderId]);
 
   return (

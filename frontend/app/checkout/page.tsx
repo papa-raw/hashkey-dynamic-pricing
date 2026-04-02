@@ -63,7 +63,18 @@ export default function CheckoutPage() {
         }),
       });
       const data = await res.json();
-      if (data.paymentUrl) window.open(data.paymentUrl, '_blank');
+      if (data.paymentUrl) {
+        // Save payment details for attestation creation on success page
+        localStorage.setItem('dc-last-payment', JSON.stringify({
+          walletAddress: address,
+          basePrice: priceRef.current!.basePrice,
+          finalPrice: priceRef.current!.finalPrice,
+          conditions: priceRef.current!.conditions,
+          locationJson: locationRef.current ? JSON.stringify({ lat: locationRef.current.lat, lng: locationRef.current.lng }) : '',
+          astralProofUid: locationRef.current?.uid || '',
+        }));
+        window.open(data.paymentUrl, '_blank');
+      }
     } catch (err) { console.error('Payment failed:', err); }
     finally { setPaying(false); }
   }, [address]);
