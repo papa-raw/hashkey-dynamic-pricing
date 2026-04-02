@@ -43,11 +43,11 @@ export async function POST(request: NextRequest) {
             locationType: 'geojson-point',
             srs: 'EPSG:4326',
             location,
-            plugin: 'browser-geolocation',
+            plugin: 'ip-geolocation',
             pluginVersion: '0.1.0',
             timestamp: now,
             temporalFootprint: { start: now - 60, end: now },
-            signals: { lat, lng, accuracy: 100, source: 'navigator.geolocation' },
+            signals: { ip: '0.0.0.0', provider: 'browser-gps', lat, lng },
             signatures: [{
               scheme: 'eip191',
               value: stampSignature,
