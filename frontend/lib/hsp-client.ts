@@ -75,7 +75,9 @@ export async function createOrder(config: HSPConfig, params: {
   const path = '/api/v1/merchant/orders';
   const headers = authHeaders('POST', path, '', body, config);
   const res = await fetch(`${config.baseUrl}${path}`, { method: 'POST', headers, body });
-  const json = await res.json() as any;
+  const text = await res.text();
+  let json: any;
+  try { json = JSON.parse(text); } catch { throw new Error(`HSP returned non-JSON (${res.status}): ${text.slice(0, 200)}`); }
   if (json.code !== 0) throw new Error(`HSP error ${json.code}: ${json.msg}`);
   return { paymentRequestId: json.data.payment_request_id, paymentUrl: json.data.payment_url, multiPay: json.data.multi_pay };
 }

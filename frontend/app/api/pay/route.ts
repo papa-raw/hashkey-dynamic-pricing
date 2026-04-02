@@ -7,7 +7,7 @@ function getHspConfig() {
     baseUrl: process.env.HSP_BASE_URL!,
     appKey: process.env.HSP_APP_KEY!,
     appSecret: process.env.HSP_APP_SECRET!,
-    merchantPrivateKey: (process.env.HSP_MERCHANT_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    merchantPrivateKey: (process.env.HSP_MERCHANT_PRIVATE_KEY || '').replace(/\\n/g, '\n').replace(/\r/g, ''),
     merchantName: 'Ecofrontiers',  // Must match HSP merchant registration
   };
 }
