@@ -10,10 +10,10 @@ import { Tooltip } from '@/components/Tooltip';
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const DEFAULT_RULES: PriceRule[] = [
-  { id: 1, conditionType: 'gas', operator: 'lt', threshold: 10, adjustmentBps: -3000, label: 'Low congestion: 30% off', active: true },
-  { id: 2, conditionType: 'reputation', operator: 'gt', threshold: 50, adjustmentBps: -2000, label: 'Loyalty (50+ txns): 20% off', active: true },
-  { id: 3, conditionType: 'time', operator: 'between', threshold: 0, thresholdHigh: 6, adjustmentBps: -5000, label: 'Off-peak (midnight-6am): 50% off', active: true },
-  { id: 4, conditionType: 'location', operator: 'eq', threshold: 1, adjustmentBps: -1000, label: 'HK jurisdiction: 10% off', active: true },
+  { id: 1, conditionType: 'gas', operator: 'lt', threshold: 10, adjustmentBps: -3000, label: 'Low congestion discount', active: true },
+  { id: 2, conditionType: 'reputation', operator: 'gt', threshold: 50, adjustmentBps: -2000, label: 'Loyalty reward', active: true },
+  { id: 3, conditionType: 'time', operator: 'between', threshold: 0, thresholdHigh: 6, adjustmentBps: -5000, label: 'Off-peak pricing', active: true },
+  { id: 4, conditionType: 'location', operator: 'eq', threshold: 1, adjustmentBps: -1000, label: 'HK jurisdiction', active: true },
 ];
 
 const FEEDS = [

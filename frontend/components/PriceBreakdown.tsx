@@ -108,13 +108,19 @@ export function PriceBreakdown({ result, loading }: { result: PriceResult | null
               >
                 <Icon className={`w-4 h-4 flex-shrink-0 ${c.matched ? 'text-pp-teal' : 'text-pp-tertiary'}`} />
                 <div className="flex-1 min-w-0">
-                  <span className="truncate block">{c.rule.label}</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="truncate">{c.rule.label}</span>
+                    {c.matched && (
+                      <span className="text-xs font-mono text-pp-teal flex-shrink-0">{(c.rule.adjustmentBps / -100).toFixed(0)}% off</span>
+                    )}
+                  </div>
                   <span className="text-[11px] text-pp-tertiary">
                     {formatOracleValue(c.rule.conditionType, c.oracleValue)}
+                    {!c.matched && ' — not matched'}
                   </span>
                 </div>
                 {c.matched ? (
-                  <span className="text-xs font-mono text-pp-teal flex-shrink-0">-{(c.adjustmentBps / -100).toFixed(0)}%</span>
+                  <Check className="w-3.5 h-3.5 text-pp-teal flex-shrink-0" />
                 ) : (
                   <X className="w-3.5 h-3.5 text-pp-tertiary/50 flex-shrink-0" />
                 )}
@@ -134,16 +140,17 @@ export function PriceBreakdown({ result, loading }: { result: PriceResult | null
         >
           {(result as any).mode === 'stack' ? (
             <>
-              <span className="font-medium text-pp-text">{(result as any).matchedCount || 0} discounts stacked</span>
+              <span className="font-medium text-pp-text">{(result as any).matchedCount || 0} discounts combined</span>
               <span className="block text-xs text-pp-tertiary mt-1">
-                ${result.basePrice.toFixed(2)} − {(result.totalAdjustmentBps / -100).toFixed(0)}% total = ${result.finalPrice.toFixed(2)} USDC
+                ${result.basePrice.toFixed(2)} × {(100 + result.totalAdjustmentBps / 100).toFixed(0)}% = ${result.finalPrice.toFixed(2)} USDC
               </span>
             </>
           ) : (
             <>
-              Best discount: <span className="font-medium text-pp-text">{result.bestDiscount.rule.label}</span>
+              Applied: <span className="font-medium text-pp-text">{result.bestDiscount.rule.label}</span>
+              <span className="text-pp-teal ml-1">({(result.bestDiscount.rule.adjustmentBps / -100).toFixed(0)}% off)</span>
               <span className="block text-xs text-pp-tertiary mt-1">
-                ${result.basePrice.toFixed(2)} − {(result.totalAdjustmentBps / -100).toFixed(0)}% = ${result.finalPrice.toFixed(2)} USDC
+                ${result.basePrice.toFixed(2)} × {(100 + result.totalAdjustmentBps / 100).toFixed(0)}% = ${result.finalPrice.toFixed(2)} USDC
               </span>
             </>
           )}
