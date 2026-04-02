@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   const { orderId, walletAddress, basePrice, finalPrice, conditions, locationJson, astralProofUid } = await request.json();
 
   if (!orderId) return NextResponse.json({ error: 'orderId required' }, { status: 400 });
-  // Don't reject on missing payment data — create attestation with defaults if localStorage was cleared
 
   try {
     const provider = new ethers.JsonRpcProvider(process.env.HASHKEY_TESTNET_RPC || 'https://testnet.hsk.xyz');

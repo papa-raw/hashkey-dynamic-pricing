@@ -14,9 +14,16 @@ function Content() {
   useEffect(() => {
     if (!orderId) return;
 
-    // Read payment details from localStorage (saved by checkout page before redirect)
-    let paymentData: any = {};
-    try { paymentData = JSON.parse(localStorage.getItem('dc-last-payment') || '{}'); } catch {}
+    // Read payment details from URL params (set by /api/pay in the redirect URL)
+    // This is reliable — doesn't depend on localStorage surviving the HSP redirect
+    const paymentData = {
+      walletAddress: params.get('wallet') || undefined,
+      basePrice: params.get('base') ? Number(params.get('base')) : undefined,
+      finalPrice: params.get('final') ? Number(params.get('final')) : undefined,
+      conditions: params.get('conditions') ? JSON.parse(decodeURIComponent(params.get('conditions')!)) : [],
+      locationJson: params.get('location') ? decodeURIComponent(params.get('location')!) : '',
+      astralProofUid: params.get('astral') ? decodeURIComponent(params.get('astral')!) : '',
+    };
 
     // Create attestation with retry — use ref to track success across closures
     let done = false;

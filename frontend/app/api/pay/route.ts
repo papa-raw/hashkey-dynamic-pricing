@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         { label: 'Base price', currency: 'USD', value: basePrice.toFixed(2) },
         { label: 'Dynamic Checkout adjustment', currency: 'USD', value: (finalPrice - basePrice).toFixed(2) },
       ],
-      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?order=${orderId}`,
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?order=${orderId}&wallet=${encodeURIComponent(walletAddress || '')}&base=${basePrice}&final=${finalPrice}&conditions=${encodeURIComponent(JSON.stringify(conditions || []))}&location=${encodeURIComponent(locationJson || '')}&astral=${encodeURIComponent(astralProofUid || '')}`,
     });
 
     pendingPayments.set(result.paymentRequestId, {
