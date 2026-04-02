@@ -10,13 +10,13 @@ const DEFAULT_RULES = [
 ];
 
 export async function POST(request: NextRequest) {
-  const { walletAddress, basePrice, lat, lng, rules, stackingMode } = await request.json();
+  const { walletAddress, basePrice, lat, lng, rules, stackingMode, localHour } = await request.json();
   const activeRules = rules && Array.isArray(rules) && rules.length > 0 ? rules : DEFAULT_RULES;
   const mode = stackingMode === 'stack' ? 'stack' : 'best';
 
   const oracleData = await Promise.all([
     getGasPrice(),
-    Promise.resolve(getTimeOfDay(lat, lng)),
+    Promise.resolve(getTimeOfDay(lat, lng, localHour)),
     getWalletReputation(walletAddress || '0x0000000000000000000000000000000000000000'),
     ...(lat && lng ? [Promise.resolve(getLocationData(lat, lng))] : []),
   ]);

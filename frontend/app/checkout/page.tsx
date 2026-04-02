@@ -33,7 +33,7 @@ export default function CheckoutPage() {
       try { rules = JSON.parse(localStorage.getItem('dc-rules') || 'null'); } catch {}
       const stackingMode = localStorage.getItem('dc-stacking') || 'best';
 
-      const body: Record<string, unknown> = { walletAddress: address || '0x' + '0'.repeat(40), basePrice, stackingMode };
+      const body: Record<string, unknown> = { walletAddress: address || '0x' + '0'.repeat(40), basePrice, stackingMode, localHour: new Date().getHours() };
       if (loc) { body.lat = loc.lat; body.lng = loc.lng; }
       if (rules) { body.rules = rules; }
       const res = await fetch('/api/price', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

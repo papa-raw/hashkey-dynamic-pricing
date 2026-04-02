@@ -19,18 +19,19 @@ export async function getGasPrice(): Promise<OracleResult> {
   return { type: 'gas', value: gasGwei, label: `${gasGwei.toFixed(2)} gwei`, raw: feeData };
 }
 
-export function getTimeOfDay(lat?: number, lng?: number): OracleResult {
-  let hour: number;
-  let label: string;
+export function getTimeOfDay(lat?: number, lng?: number, clientLocalHour?: number): OracleResult {
+  // Client sends their actual local hour — use it directly
+  if (typeof clientLocalHour === 'number') {
+    return { type: 'time', value: clientLocalHour, label: `${clientLocalHour}:00 local`, raw: { hour: clientLocalHour, source: 'client' } };
+  }
+  // Fallback: compute from longitude or use UTC
   if (lng !== undefined && lng !== 0) {
     const tzOffset = Math.round(lng / 15);
-    hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
-    label = `${hour}:00 (UTC${tzOffset >= 0 ? '+' : ''}${tzOffset})`;
-  } else {
-    hour = new Date().getUTCHours();
-    label = `${hour}:00 UTC`;
+    const hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
+    return { type: 'time', value: hour, label: `${hour}:00 local`, raw: { hour, source: 'longitude' } };
   }
-  return { type: 'time', value: hour, label, raw: { hour, lng, hasLocation: lng !== undefined } };
+  const hour = new Date().getUTCHours();
+  return { type: 'time', value: hour, label: `${hour}:00 UTC`, raw: { hour, source: 'server-utc' } };
 }
 
 export async function getWalletReputation(address: string): Promise<OracleResult> {
