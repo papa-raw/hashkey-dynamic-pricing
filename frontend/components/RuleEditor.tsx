@@ -2,11 +2,21 @@
 import type { PriceRule } from '@/lib/types';
 import { Plus, Trash2, Zap, Clock, Award, MapPin, SlidersHorizontal } from 'lucide-react';
 
+const JURISDICTIONS = [
+  { code: 1, name: 'Hong Kong' },
+  { code: 2, name: 'Singapore' },
+  { code: 3, name: 'Tokyo' },
+  { code: 4, name: 'London' },
+  { code: 5, name: 'New York' },
+  { code: 6, name: 'Berlin' },
+  { code: 0, name: 'Global (any)' },
+];
+
 const CONDITIONS = [
   { value: 'gas', label: 'Gas Price', unit: 'gwei', icon: Zap },
   { value: 'reputation', label: 'Wallet Rep', unit: 'txns', icon: Award },
   { value: 'time', label: 'Time of Day', unit: 'hour', icon: Clock },
-  { value: 'location', label: 'Jurisdiction', unit: 'code', icon: MapPin },
+  { value: 'location', label: 'Jurisdiction', unit: '', icon: MapPin },
 ] as const;
 
 const OPERATORS = [
@@ -59,10 +69,16 @@ export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRul
                 {OPERATORS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
 
-              <div className="flex items-center gap-1">
-                <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
-                <span className="text-[10px] text-pp-tertiary">{cond?.unit}</span>
-              </div>
+              {rule.conditionType === 'location' ? (
+                <select value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} className={selectClass}>
+                  {JURISDICTIONS.map(j => <option key={j.code} value={j.code}>{j.name}</option>)}
+                </select>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
+                  {cond?.unit && <span className="text-[10px] text-pp-tertiary">{cond.unit}</span>}
+                </div>
+              )}
 
               {rule.operator === 'between' && (
                 <>
