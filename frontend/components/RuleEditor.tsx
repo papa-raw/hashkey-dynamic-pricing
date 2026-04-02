@@ -17,7 +17,8 @@ const OPERATORS = [
 ] as const;
 
 const selectClass = 'bg-pp-bg border border-pp-border rounded-lg px-2.5 py-1.5 text-sm text-pp-text focus:outline-none focus:border-pp-blue transition-colors [&]:bg-pp-bg [color-scheme:dark]';
-const inputClass = 'bg-pp-bg border border-pp-border rounded-lg px-2.5 py-1.5 text-sm text-pp-text font-mono w-20 focus:outline-none focus:border-pp-blue transition-colors tabular-nums';
+const inputClass = 'bg-pp-bg border border-pp-border rounded-lg px-2.5 py-1.5 text-sm text-pp-text font-mono w-20 focus:outline-none focus:border-pp-blue transition-colors tabular-nums [&]:select-all';
+const selectOnFocus = (e: React.FocusEvent<HTMLInputElement>) => e.target.select();
 
 export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRulesChange: (r: PriceRule[]) => void }) {
   function add() {
@@ -59,21 +60,21 @@ export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRul
               </select>
 
               <div className="flex items-center gap-1">
-                <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} className={inputClass} />
+                <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
                 <span className="text-[10px] text-pp-tertiary">{cond?.unit}</span>
               </div>
 
               {rule.operator === 'between' && (
                 <>
                   <span className="text-xs text-pp-tertiary">to</span>
-                  <input type="number" value={rule.thresholdHigh || 0} onChange={e => update(i, { thresholdHigh: Number(e.target.value) })} className={inputClass} />
+                  <input type="number" value={rule.thresholdHigh || 0} onChange={e => update(i, { thresholdHigh: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
                 </>
               )}
 
               <input value={rule.label} onChange={e => update(i, { label: e.target.value })} className="flex-1 min-w-0 bg-transparent border-0 text-sm text-pp-secondary focus:text-pp-text focus:outline-none placeholder:text-pp-tertiary" placeholder="Rule name..." />
 
               <div className="flex items-center gap-1 flex-shrink-0">
-                <input type="number" value={rule.adjustmentBps / -100} onChange={e => update(i, { adjustmentBps: Number(e.target.value) * -100 })} className={`${inputClass} w-14`} />
+                <input type="number" value={rule.adjustmentBps / -100} onChange={e => update(i, { adjustmentBps: Number(e.target.value) * -100 })} onFocus={selectOnFocus} className={`${inputClass} w-14`} />
                 <span className="text-[11px] text-pp-tertiary">% off</span>
               </div>
 

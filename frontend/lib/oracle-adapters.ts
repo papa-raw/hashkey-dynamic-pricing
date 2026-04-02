@@ -20,12 +20,18 @@ export async function getGasPrice(): Promise<OracleResult> {
 }
 
 export function getTimeOfDay(lat?: number, lng?: number): OracleResult {
-  // If no location provided, use demo coords (HK) so time is always meaningful
-  const useLng = lng ?? 114.17;
-  const tzOffset = Math.round(useLng / 15);
-  const hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
-  const locationKnown = lng !== undefined;
-  return { type: 'time', value: hour, label: `${hour}:00 ${locationKnown ? 'local' : 'est'}`, raw: { hour, hasLocation: locationKnown } };
+  let hour: number;
+  let label: string;
+  if (lng !== undefined) {
+    const tzOffset = Math.round(lng / 15);
+    hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
+    label = `${hour}:00 local`;
+  } else {
+    // No location — use server's local time (matches what user sees on their clock)
+    hour = new Date().getHours();
+    label = `${hour}:00`;
+  }
+  return { type: 'time', value: hour, label, raw: { hour, hasLocation: lng !== undefined } };
 }
 
 export async function getWalletReputation(address: string): Promise<OracleResult> {

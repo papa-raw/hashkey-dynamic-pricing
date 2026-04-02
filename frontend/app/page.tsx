@@ -10,7 +10,7 @@ import { Tooltip } from '@/components/Tooltip';
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const DEFAULT_RULES: PriceRule[] = [
-  { id: 1, conditionType: 'gas', operator: 'lt', threshold: 10, adjustmentBps: -3000, label: 'Low congestion discount', active: true },
+  { id: 1, conditionType: 'gas', operator: 'lt', threshold: 10, adjustmentBps: -200, label: 'Low congestion discount', active: true },
   { id: 2, conditionType: 'reputation', operator: 'gt', threshold: 50, adjustmentBps: -2000, label: 'Loyalty reward', active: true },
   { id: 3, conditionType: 'time', operator: 'between', threshold: 0, thresholdHigh: 6, adjustmentBps: -5000, label: 'Off-peak pricing', active: true },
   { id: 4, conditionType: 'location', operator: 'eq', threshold: 1, adjustmentBps: -1000, label: 'HK jurisdiction', active: true },
@@ -28,7 +28,7 @@ export default function DashboardPage() {
     if (typeof window !== 'undefined') {
       // Migration: clear stale rules from before label cleanup (v2)
       const version = localStorage.getItem('dc-rules-v');
-      if (version !== '2') { localStorage.removeItem('dc-rules'); localStorage.setItem('dc-rules-v', '2'); }
+      if (version !== '3') { localStorage.removeItem('dc-rules'); localStorage.setItem('dc-rules-v', '3'); }
       const saved = localStorage.getItem('dc-rules');
       if (saved) try { return JSON.parse(saved); } catch {}
     }
