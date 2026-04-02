@@ -93,11 +93,15 @@ export function Sidebar() {
               </div>
             </div>
 
-            <div>
-              <span className="text-pp-text font-medium block mb-1.5">Astral Protocol</span>
-              <p className="text-pp-tertiary leading-relaxed">
-                Location proofs use the Ethereum Attestation Service (EAS), pre-deployed on HashKey Chain at the OP Stack predeploy address. The Astral schema is registered natively on chain 133, enabling EIP-712 offchain attestations that cryptographically prove a customer's location at payment time. This powers jurisdiction-aware pricing — proof that the customer was actually where they claim.
+            <div className="bg-pp-teal-sub/20 border border-pp-teal/15 rounded-lg p-3">
+              <span className="text-pp-teal font-medium block mb-1.5">Astral Protocol — TEE-Verified Location Proofs</span>
+              <p className="text-pp-secondary leading-relaxed">
+                Location isn't self-reported. Astral runs verification inside a <span className="text-pp-text">Trusted Execution Environment (TEE)</span> that cross-references multiple independent proof-of-location signals before signing. The pipeline: GPS coordinates collected → sent to Astral's TEE → TEE verifies stamp signatures and consistency across sources → spatial operations (PostGIS) validate the claim → TEE signs a confidence-scored result → returned as an EAS attestation (EIP-712).
               </p>
+              <p className="text-pp-secondary leading-relaxed mt-2">
+                A customer claiming "I'm in Hong Kong" can't just spoof GPS. The TEE produces a cryptographic proof with a confidence score that downstream systems (like our rule engine) can verify independently. EAS is pre-deployed on HashKey Chain at the OP Stack predeploy. The Astral schema is registered natively on chain 133.
+              </p>
+              <p className="text-pp-teal text-[10px] mt-2 font-medium">This is the only hackathon submission with TEE-verified location proofs driving payment pricing.</p>
             </div>
 
             <div>
