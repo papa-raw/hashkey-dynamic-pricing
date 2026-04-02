@@ -78,9 +78,9 @@ export function Sidebar() {
                 <span className="text-pp-text font-medium block mb-1.5">Oracle Feeds</span>
                 <ul className="space-y-1 text-pp-tertiary text-[11px]">
                   <li><span className="text-pp-secondary">Gas Price</span> — block.basefee</li>
-                  <li><span className="text-pp-secondary">Wallet Rep</span> — tx count</li>
-                  <li><span className="text-pp-secondary">Time of Day</span> — Astral location</li>
-                  <li><span className="text-pp-secondary">Jurisdiction</span> — geofence</li>
+                  <li><span className="text-pp-secondary">Loyalty</span> — prior payments</li>
+                  <li><span className="text-pp-secondary">Time of Day</span> — client local hour</li>
+                  <li><span className="text-pp-secondary">Jurisdiction</span> — TEE geofence</li>
                 </ul>
               </div>
               <div className="bg-pp-raised/40 rounded-lg p-3">
