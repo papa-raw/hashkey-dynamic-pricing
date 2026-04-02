@@ -91,7 +91,7 @@ export default function DashboardPage() {
                 <h2 className="font-head text-lg font-semibold text-pp-text">Pricing Rules</h2>
                 <p className="text-xs text-pp-tertiary mt-0.5">
                   Each rule ties a real-time oracle feed to a price adjustment. When a customer checks out,
-                  all rules evaluate against live data — the best matching discount applies.
+                  all rules evaluate against live data. Discounts apply based on the mode you select below.
                 </p>
               </div>
               <Link href="/checkout" className="flex items-center gap-2 bg-pp-blue hover:bg-pp-blue-hover text-white font-semibold text-sm px-6 py-3 rounded-lg transition-all duration-150 flex-shrink-0 ml-4">

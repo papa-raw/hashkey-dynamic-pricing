@@ -20,21 +20,27 @@ export async function getGasPrice(): Promise<OracleResult> {
 }
 
 export function getTimeOfDay(lat?: number, lng?: number): OracleResult {
-  let hour: number;
-  if (lat !== undefined && lng !== undefined) {
-    const tzOffset = Math.round(lng / 15);
-    hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
-  } else {
-    hour = new Date().getUTCHours();
-  }
-  return { type: 'time', value: hour, label: `${hour}:00 ${lat ? 'local' : 'UTC'}`, raw: { hour, hasLocation: lat !== undefined } };
+  // If no location provided, use demo coords (HK) so time is always meaningful
+  const useLng = lng ?? 114.17;
+  const tzOffset = Math.round(useLng / 15);
+  const hour = (new Date().getUTCHours() + tzOffset + 24) % 24;
+  const locationKnown = lng !== undefined;
+  return { type: 'time', value: hour, label: `${hour}:00 ${locationKnown ? 'local' : 'est'}`, raw: { hour, hasLocation: locationKnown } };
 }
 
 export async function getWalletReputation(address: string): Promise<OracleResult> {
   const p = getProvider();
-  const [txCount, balance] = await Promise.all([p.getTransactionCount(address), p.getBalance(address)]);
-  const balanceHSK = Number(ethers.formatEther(balance));
-  return { type: 'reputation', value: txCount, label: `${txCount} txns, ${balanceHSK.toFixed(2)} HSK`, raw: { txCount, balanceHSK } };
+  // Count prior payments by this wallet via ProofPayAttestation events
+  // This is real merchant loyalty — how many times has this payer paid through Dynamic Checkout?
+  const { PROOFPAY_ATTESTATION_ADDRESS, PROOFPAY_ATTESTATION_ABI } = await import('./constants');
+  const contract = new ethers.Contract(PROOFPAY_ATTESTATION_ADDRESS, PROOFPAY_ATTESTATION_ABI, p);
+  let priorPayments = 0;
+  try {
+    const filter = contract.filters.PriceProofCreated(null, null, address);
+    const events = await contract.queryFilter(filter, -100000);
+    priorPayments = events.length;
+  } catch {}
+  return { type: 'reputation', value: priorPayments, label: `${priorPayments} prior payments`, raw: { priorPayments } };
 }
 
 export function getLocationData(lat: number, lng: number): OracleResult {

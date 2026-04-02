@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [oracleData, setOracleData] = useState<OracleData[]>([]);
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [error, setError] = useState('');
   const locationRef = useRef<{ uid: string; lat: number; lng: number } | null>(null);
   const priceRef = useRef<PriceResult | null>(null);
 
@@ -40,7 +41,7 @@ export default function CheckoutPage() {
       setPriceResult(data);
       priceRef.current = data;
       setOracleData(data.oracleData || []);
-    } catch (err) { console.error('Price computation failed:', err); }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Price computation failed'); }
     finally { setLoading(false); }
   }, [address, basePrice]);
 
@@ -75,7 +76,7 @@ export default function CheckoutPage() {
         }));
         window.open(data.paymentUrl, '_blank');
       }
-    } catch (err) { console.error('Payment failed:', err); }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Payment failed'); }
     finally { setPaying(false); }
   }, [address]);
 
@@ -171,9 +172,16 @@ export default function CheckoutPage() {
                   : <>Pay ${priceResult.finalPrice.toFixed(2)} USDC <ExternalLink className="w-4 h-4" /></>}
               </button>
               <p className="text-[10px] text-pp-tertiary text-center mt-2.5">
-                Redirects to HSP checkout. Payment settled on HashKey Chain. Price proof attested onchain.
+                Opens HSP checkout in a new tab. Payment settled on HashKey Chain. Price proof attested onchain.
               </p>
             </motion.div>
+          )}
+          {/* Error display */}
+          {error && (
+            <div className="bg-pp-red-sub border border-pp-red/20 rounded-lg px-4 py-3 text-sm text-pp-red">
+              {error}
+              <button onClick={() => setError('')} className="ml-2 text-pp-tertiary hover:text-pp-text text-xs">dismiss</button>
+            </div>
           )}
         </div>
       </div>

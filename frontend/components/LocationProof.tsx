@@ -137,7 +137,7 @@ export function LocationProof({ onProofCreated }: { onProofCreated: (p: { uid: s
         <div className="mt-3 bg-pp-teal-sub/20 border border-pp-teal/15 rounded-lg px-3 py-2 text-[11px]">
           <div className="flex items-center gap-4 text-pp-secondary">
             <span>Method: <span className="text-pp-teal font-mono">{result.evaluationMethod}</span></span>
-            <span>Temporal: <span className="text-pp-text">{(temporalScore?.meanOverlap * 100).toFixed(0)}%</span></span>
+            <span>Temporal: <span className="text-pp-text">{((temporalScore?.meanOverlap ?? 0) * 100).toFixed(0)}%</span></span>
             <span>Stamps: <span className="text-pp-text">{result.credibility.meta?.stampCount}</span></span>
           </div>
         </div>

@@ -58,7 +58,10 @@ export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRul
                 {OPERATORS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
 
-              <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} className={inputClass} />
+              <div className="flex items-center gap-1">
+                <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} className={inputClass} />
+                <span className="text-[10px] text-pp-tertiary">{cond?.unit}</span>
+              </div>
 
               {rule.operator === 'between' && (
                 <>

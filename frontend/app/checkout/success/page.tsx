@@ -75,7 +75,19 @@ function Content() {
             <p className="font-mono text-xs text-pp-secondary truncate">{attestation.proofId}</p>
           </motion.div>
         ) : (
-          <p className="text-sm text-pp-tertiary">Attestation will appear once the webhook fires.</p>
+          <div className="text-center space-y-2">
+            <p className="text-sm text-pp-tertiary">Attestation creation timed out.</p>
+            <button onClick={() => { setPolling(true); setTimeout(async () => {
+              try {
+                let pd: any = {};
+                try { pd = JSON.parse(localStorage.getItem('dc-last-payment') || '{}'); } catch {}
+                const res = await fetch('/api/create-attestation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId, ...pd }) });
+                if (res.ok) { setAttestation(await res.json()); }
+              } catch {} finally { setPolling(false); }
+            }, 500); }} className="text-sm text-pp-blue hover:text-pp-blue-hover">
+              Retry
+            </button>
+          </div>
         )}
 
         <div className="space-y-2 pt-2">
