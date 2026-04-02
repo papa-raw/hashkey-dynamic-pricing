@@ -26,6 +26,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.0",
     "patch-package": "^8.0.1",
     "postcss": "^8.4.0",
