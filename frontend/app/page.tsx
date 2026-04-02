@@ -82,8 +82,8 @@ export default function DashboardPage() {
                   all rules evaluate against live data — the best matching discount applies.
                 </p>
               </div>
-              <Link href="/checkout" className="flex items-center gap-1.5 text-sm font-medium text-pp-blue hover:text-pp-blue-hover transition-colors flex-shrink-0 ml-4">
-                Checkout <ArrowUpRight className="w-3.5 h-3.5" />
+              <Link href="/checkout" className="flex items-center gap-2 bg-pp-blue hover:bg-pp-blue-hover text-white font-semibold text-sm px-6 py-3 rounded-lg transition-all duration-150 flex-shrink-0 ml-4">
+                Checkout <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
 
