@@ -5,7 +5,7 @@
 ![Dynamic Checkout Dashboard](frontend/public/screenshot-dashboard.png)
 
 **Live demo:** [dynamic-checkout-mu.vercel.app](https://dynamic-checkout-mu.vercel.app)
-**Track:** PayFi — HashKey Chain Horizon Hackathon
+**Track:** PayFi -- HashKey Chain Horizon Hackathon
 
 ---
 
@@ -13,12 +13,12 @@
 
 Merchants define pricing rules tied to real-world data feeds. When a customer pays, Dynamic Checkout:
 
-1. **Queries 4 oracle feeds** — gas price, wallet reputation, local time, jurisdiction
-2. **Evaluates all merchant rules** — best discount wins, or stack all (merchant chooses)
-3. **Settles via HSP** — USDC payment on HashKey Chain
-4. **Attests the price onchain** — permanent proof of the exact computation
+1. **Queries 4 oracle feeds** -- gas price, wallet reputation, local time, jurisdiction
+2. **Evaluates all merchant rules** -- best discount wins, or stack all (merchant chooses)
+3. **Settles via HSP** -- USDC payment on HashKey Chain
+4. **Attests the price onchain** -- permanent proof of the exact computation
 
-A merchant offering cross-border payments sets a loyalty rule: 20% discount for wallets with 50+ transactions. A returning customer pays $8 instead of $10 — and the onchain attestation records the exact rule that matched, the oracle value (67 txns), and how the final price was derived. Verifiable by anyone, permanently.
+A merchant offering cross-border payments sets a loyalty rule: 20% discount for wallets with 50+ transactions. A returning customer pays $8 instead of $10 -- and the onchain attestation records the exact rule that matched, the oracle value (67 txns), and how the final price was derived. Verifiable by anyone, permanently.
 
 ---
 
@@ -27,17 +27,21 @@ A merchant offering cross-border payments sets a loyalty rule: 20% discount for 
 ```
 Customer connects wallet
         |
-Astral Protocol verifies location inside a TEE
-  -> GPS + independent proof-of-location signals
-  -> TEE verifies signatures, consistency, spatial validity (PostGIS)
-  -> TEE signs confidence-scored result
-  -> Returned as EAS attestation (EIP-712)
+Browser collects GPS coordinates (or demo mode: Hong Kong)
+        |
+Server creates a signed location stamp (EIP-191, deployer wallet)
+        |
+Stamp + claim submitted to Astral's TEE verification API
+  -> staging-api.astral.global/verify/v0/proof
+  -> TEE evaluates stamp signatures, structure, temporal consistency
+  -> TEE returns credibility score + signed EAS attestation
+  -> evaluationMethod: "astral-v0.3.0-tee"
         |
 4 Oracle feeds evaluate in parallel:
   |-- Gas Price      ->  block.basefee (network congestion)
   |-- Wallet Rep     ->  tx count on HashKey Chain (loyalty)
-  |-- Time of Day    ->  local hour from TEE-verified location (off-peak pricing)
-  |-- Jurisdiction   ->  geofence from TEE-verified coordinates (regional rules)
+  |-- Time of Day    ->  local hour from verified location
+  |-- Jurisdiction   ->  geofence from verified coordinates
         |
 Rule engine evaluates all merchant rules against oracle data
   -> "Best discount wins" or "Stack all discounts" (merchant configurable)
@@ -46,41 +50,37 @@ HSP settles USDC payment on HashKey Chain
   -> HMAC-SHA256 request signing + ES256K JWT merchant authorization
         |
 Price proof attested onchain (ProofPayAttestation contract)
-  -> base price, final price, conditions evaluated, oracle values, location proof UID
+  -> base price, final price, conditions evaluated, oracle values, TEE proof UID
 ```
 
 ---
 
-## Astral Protocol — TEE-Verified Location Proofs
+## Astral Protocol -- TEE-Verified Location Proofs
 
-Dynamic Checkout uses [Astral Protocol](https://docs.astral.global) for **TEE-verified location proofs** — not self-reported GPS.
+Dynamic Checkout uses [Astral Protocol](https://docs.astral.global) for location verification. Here's what actually happens:
 
-**The verification pipeline:**
+**Our implementation:**
 
-```
-GPS coordinates collected from device
-        |
-Sent to Astral's hosted Trusted Execution Environment (TEE)
-        |
-TEE cross-references multiple independent proof-of-location signals
-        |
-TEE verifies stamp signatures, structure, and consistency
-        |
-Spatial operations (PostGIS) validate the claim inside TEE
-        |
-TEE signs a confidence-scored result
-        |
-Returned as EAS attestation (EIP-712 offchain)
-```
+1. Browser collects GPS coordinates via `navigator.geolocation` (or preset demo coordinates)
+2. Our server creates a **signed stamp** -- the deployer wallet signs the location data (EIP-191)
+3. Server submits a **claim** (location + subject + radius + time window) plus the **stamp** (signed evidence) to Astral's `/verify/v0/proof` endpoint
+4. Astral's TEE evaluates the stamp: signature validity, structural integrity, temporal consistency
+5. TEE returns a **credibility object** with dimensional scores (spatial, temporal, validity, independence) and a **signed EAS attestation** from Astral's TEE signer (`0x590fdb53...`)
 
-**Why this matters for PayFi:** A customer claiming "I'm in Hong Kong" can't just spoof GPS coordinates. The TEE cross-references multiple location signals and produces a cryptographic proof with a confidence score. Our jurisdiction pricing rules are backed by TEE-verified location, not self-reported data.
+**What the TEE actually verifies:**
+- Stamp signature is valid and matches the claimed signer
+- Stamp structure follows Location Protocol v0.2
+- Temporal footprint is consistent with the claim's time window
+- Spatial consistency between stamp location and claim location
 
-**This is the only hackathon submission with TEE-verified location proofs driving payment pricing.**
+**What it doesn't do (being honest):**
+- Browser GPS can still be spoofed with mock location tools. The TEE verifies the stamp's signature and consistency, but cannot independently confirm the device was physically at the claimed coordinates.
+- We submit one stamp (ip-geolocation plugin). A production deployment would submit multiple stamps from independent sources (ProofMode hardware attestation, WitnessChain network triangulation, WiFi-MLS) for higher-confidence cross-correlation.
+- The credibility score reflects the quality and consistency of the evidence submitted, not absolute proof of physical presence.
 
-**HashKey Chain integration:**
-- EAS pre-deployed at OP Stack predeploy (`0x4200...0021`)
-- Astral location schema registered natively on chain 133 (UID: `0xba4171...c824e2`)
-- SDK patched via `patch-package` to add chain 133 support (applied automatically on `npm install`)
+**Why it still matters:** Every location claim is signed, timestamped, and TEE-evaluated with a credibility score. This is a meaningful step above raw self-reported GPS -- the TEE provides an independent evaluation that the claim is structurally valid and internally consistent. The attestation is signed by Astral's TEE key, not the user's wallet, creating a separation between claim and verification.
+
+**Schema:** `0x9efcbaa4a39a233977a6db557fd81ba5adc9023ca731db86cfd562c4fbf4073e` (Astral Location Protocol v0.2)
 
 ---
 
@@ -90,8 +90,8 @@ Returned as EAS attestation (EIP-712 offchain)
 |------|--------|-----------------|-------------|
 | **Gas Price** | `block.basefee` | Network congestion | Gas < 10 gwei -> 30% off |
 | **Wallet Reputation** | Transaction count | Customer loyalty | > 50 txns -> 20% off |
-| **Time of Day** | Local hour via TEE-verified Astral location | Peak vs off-peak | Midnight-6am -> 50% off |
-| **Jurisdiction** | Astral Protocol TEE geofence | Regional compliance | Hong Kong -> 10% off |
+| **Time of Day** | Local hour from verified location | Peak vs off-peak | Midnight-6am -> 50% off |
+| **Jurisdiction** | Geofence from verified coordinates | Regional compliance | Hong Kong -> 10% off |
 
 ---
 
@@ -99,10 +99,10 @@ Returned as EAS attestation (EIP-712 offchain)
 
 Dynamic Checkout uses the HashKey Settlement Protocol for payment settlement with two authentication layers:
 
-- **HMAC-SHA256** — signs every API request (method, path, body hash, timestamp, nonce)
-- **ES256K JWT** — merchant authorization field with secp256k1 signature over cart hash
+- **HMAC-SHA256** -- signs every API request (method, path, body hash, timestamp, nonce)
+- **ES256K JWT** -- merchant authorization field with secp256k1 signature over cart hash
 
-The HSP client uses Node's built-in `crypto` module for both layers — no external JWT library needed (jose v6 dropped ES256K support, so we sign manually).
+The HSP client uses Node's built-in `crypto` module for both layers -- no external JWT library needed (jose v6 dropped ES256K support, so we sign manually).
 
 **Flow:** Create order -> customer redirected to HSP checkout -> customer approves USDC -> HSP settles onchain -> webhook confirms -> attestation created.
 
@@ -110,7 +110,7 @@ The HSP client uses Node's built-in `crypto` module for both layers — no exter
 
 ## Deployed Contracts
 
-HashKey Chain Testnet — Chain ID 133
+HashKey Chain Testnet -- Chain ID 133
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
@@ -130,7 +130,7 @@ All contracts verified on Blockscout. EAS Schema UID: `0xba4171c92572b1e4f241d04
 | Frontend | Next.js 15, React 19, Tailwind CSS, Framer Motion |
 | Wallet | wagmi v2, RainbowKit, viem |
 | Payments | HSP REST API (HMAC-SHA256 + ES256K JWT) |
-| Location Proofs | Astral Protocol SDK, EAS, TEE-verified |
+| Location Proofs | Astral Protocol TEE verification API, EAS |
 | Oracle Feeds | block.basefee, tx count, Astral TEE location, geofence |
 
 ---
@@ -157,36 +157,37 @@ npm run dev
 
 ```
 frontend/
-├── app/
-│   ├── page.tsx                 # Merchant dashboard + rule editor
-│   ├── checkout/page.tsx        # Customer checkout flow
-│   ├── attestations/page.tsx    # Price proof explorer
-│   └── api/
-│       ├── price/route.ts       # Oracle evaluation + rule engine
-│       ├── pay/route.ts         # HSP order creation
-│       ├── webhook/route.ts     # HSP payment callback → attestation
-│       ├── attestation/route.ts # Query onchain proofs
-│       └── rules/route.ts      # Merchant rule CRUD
-├── lib/
-│   ├── hsp-client.ts            # HSP REST API (HMAC + ES256K JWT)
-│   ├── oracle-adapters.ts       # 4 oracle feed adapters
-│   ├── rule-engine.ts           # Best-discount or stacking evaluation
-│   ├── astral-service.ts        # TEE-verified location proofs via EAS
-│   └── constants.ts             # Contract addresses, ABIs, chain config
-├── components/                  # PriceBreakdown, LocationProof, RuleEditor, etc.
-└── patches/                     # Astral SDK chain 133 support
+  app/
+    page.tsx                 # Merchant dashboard + rule editor
+    checkout/page.tsx        # Customer checkout flow
+    attestations/page.tsx    # Price proof explorer
+    api/
+      price/route.ts         # Oracle evaluation + rule engine
+      pay/route.ts           # HSP order creation
+      location/route.ts      # Astral TEE verification
+      webhook/route.ts       # HSP payment callback -> attestation
+      attestation/route.ts   # Query onchain proofs
+      rules/route.ts         # Merchant rule CRUD
+  lib/
+    hsp-client.ts            # HSP REST API (HMAC + ES256K JWT)
+    oracle-adapters.ts       # 4 oracle feed adapters
+    rule-engine.ts           # Best-discount or stacking evaluation
+    astral-service.ts        # Legacy client-side Astral (kept for reference)
+    constants.ts             # Contract addresses, ABIs, chain config
+  components/                # PriceBreakdown, LocationProof, RuleEditor, etc.
+  patches/                   # Astral SDK chain 133 support
 
 contracts/
-├── ProofPayAttestation.sol      # Onchain price proof records
-├── HSPAdapter.sol               # Payment lifecycle tracking
-└── PriceRuleRegistry.sol        # Merchant pricing rules
+  ProofPayAttestation.sol    # Onchain price proof records
+  HSPAdapter.sol             # Payment lifecycle tracking
+  PriceRuleRegistry.sol      # Merchant pricing rules
 ```
 
 ---
 
 ## Team
 
-**Patrick Rawson** — [Ecofrontiers](https://ecofrontiers.xyz)
+**Patrick Rawson** -- [Ecofrontiers](https://ecofrontiers.xyz)
 
 ## License
 

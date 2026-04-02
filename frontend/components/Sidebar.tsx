@@ -95,14 +95,14 @@ export function Sidebar() {
             </div>
 
             <div className="bg-pp-teal-sub/20 border border-pp-teal/15 rounded-lg p-3">
-              <span className="text-pp-teal font-medium block mb-1.5">Astral Protocol — TEE-Verified Location Proofs</span>
+              <span className="text-pp-teal font-medium block mb-1.5">Astral Protocol — TEE Location Verification</span>
               <p className="text-pp-secondary leading-relaxed">
-                Location isn't self-reported. Astral runs verification inside a <span className="text-pp-text">Trusted Execution Environment (TEE)</span> that cross-references multiple independent proof-of-location signals before signing. The pipeline: GPS coordinates collected → sent to Astral's TEE → TEE verifies stamp signatures and consistency across sources → spatial operations (PostGIS) validate the claim → TEE signs a confidence-scored result → returned as an EAS attestation (EIP-712).
+                At checkout, browser GPS is collected and submitted as a signed stamp to Astral's <span className="text-pp-text">TEE verification API</span> (<span className="font-mono text-[10px]">staging-api.astral.global/verify/v0/proof</span>). The TEE evaluates stamp signatures, structural integrity, and temporal consistency, then returns a credibility-scored EAS attestation signed by Astral's TEE key — not the user's wallet.
               </p>
               <p className="text-pp-secondary leading-relaxed mt-2">
-                A customer claiming "I'm in Hong Kong" can't just spoof GPS. The TEE produces a cryptographic proof with a confidence score that downstream systems (like our rule engine) can verify independently. EAS is pre-deployed on HashKey Chain at the OP Stack predeploy. The Astral schema is registered natively on chain 133.
+                Currently submitting one stamp per verification. Production would add multiple independent sources (ProofMode hardware attestation, WitnessChain network triangulation) for higher-confidence cross-correlation. The TEE verifies internal consistency of what's submitted — it can't independently confirm physical presence from a single browser GPS stamp.
               </p>
-              <p className="text-pp-teal text-[10px] mt-2 font-medium">This is the only hackathon submission with TEE-verified location proofs driving payment pricing.</p>
+              <p className="text-pp-teal text-[10px] mt-2 font-medium">Evaluation method: astral-v0.3.0-tee</p>
             </div>
 
             <div>
