@@ -18,50 +18,44 @@ function Content() {
     let paymentData: any = {};
     try { paymentData = JSON.parse(localStorage.getItem('dc-last-payment') || '{}'); } catch {}
 
-    // Create the attestation immediately — don't wait for webhook
-    async function createAttestation() {
+    // Create attestation with retry — use ref to track success across closures
+    let done = false;
+    let attempt = 0;
+
+    async function tryCreate() {
+      if (done || attempt >= 5) { if (!done) setPolling(false); return; }
+      attempt++;
       try {
         const res = await fetch('/api/create-attestation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             orderId,
-            walletAddress: paymentData.walletAddress,
-            basePrice: paymentData.basePrice,
-            finalPrice: paymentData.finalPrice,
-            conditions: paymentData.conditions,
-            locationJson: paymentData.locationJson,
-            astralProofUid: paymentData.astralProofUid,
+            walletAddress: paymentData.walletAddress || undefined,
+            basePrice: paymentData.basePrice || 10,
+            finalPrice: paymentData.finalPrice || 10,
+            conditions: paymentData.conditions || [],
+            locationJson: paymentData.locationJson || '',
+            astralProofUid: paymentData.astralProofUid || '',
           }),
         });
         if (res.ok) {
           const data = await res.json();
+          done = true;
           setAttestation(data);
           setPolling(false);
+          return;
         }
+        console.warn(`Attestation attempt ${attempt} failed: ${res.status}`);
       } catch (err) {
-        console.error('Attestation creation failed:', err);
+        console.warn(`Attestation attempt ${attempt} error:`, err);
       }
+      // Retry with backoff
+      setTimeout(tryCreate, attempt * 3000);
     }
 
-    // Retry up to 5 times with increasing delay
-    let attempt = 0;
-    const maxAttempts = 5;
-    const delays = [2000, 4000, 6000, 10000, 15000];
-
-    function tryCreate() {
-      if (attempt >= maxAttempts) { setPolling(false); return; }
-      const delay = delays[attempt] || 10000;
-      attempt++;
-      setTimeout(async () => {
-        await createAttestation();
-        // If still polling (attestation not yet created), retry
-        if (!attestation) tryCreate();
-      }, delay);
-    }
-
-    tryCreate();
-    return () => { attempt = maxAttempts; }; // cancel on unmount
+    setTimeout(tryCreate, 1500);
+    return () => { done = true; };
   }, [orderId]);
 
   return (
