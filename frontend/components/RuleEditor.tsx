@@ -67,12 +67,12 @@ export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRul
                 </>
               )}
 
+              <input value={rule.label} onChange={e => update(i, { label: e.target.value })} className="flex-1 min-w-0 bg-transparent border-0 text-sm text-pp-secondary focus:text-pp-text focus:outline-none placeholder:text-pp-tertiary" placeholder="Rule name..." />
+
               <div className="flex items-center gap-1 flex-shrink-0">
                 <input type="number" value={rule.adjustmentBps / -100} onChange={e => update(i, { adjustmentBps: Number(e.target.value) * -100 })} className={`${inputClass} w-14`} />
                 <span className="text-[11px] text-pp-tertiary">% off</span>
               </div>
-
-              <input value={rule.label} onChange={e => update(i, { label: e.target.value })} className="flex-1 min-w-0 bg-transparent border-0 text-sm text-pp-secondary focus:text-pp-text focus:outline-none placeholder:text-pp-tertiary" placeholder="Rule label..." />
 
               <button onClick={() => remove(i)} className="opacity-0 group-hover:opacity-100 text-pp-tertiary hover:text-pp-red transition-all p-1">
                 <Trash2 className="w-3.5 h-3.5" />
