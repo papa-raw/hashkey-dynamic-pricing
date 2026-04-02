@@ -65,19 +65,27 @@ export function RuleEditor({ rules, onRulesChange }: { rules: PriceRule[]; onRul
                 {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
 
-              <select value={rule.operator} onChange={e => update(i, { operator: e.target.value as PriceRule['operator'] })} className={`${selectClass} w-14 text-center`}>
-                {OPERATORS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-
               {rule.conditionType === 'location' ? (
-                <select value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} className={selectClass}>
-                  {JURISDICTIONS.map(j => <option key={j.code} value={j.code}>{j.name}</option>)}
-                </select>
+                <>
+                  <span className="text-xs text-pp-tertiary">=</span>
+                  <select value={rule.threshold} onChange={e => {
+                    const code = Number(e.target.value);
+                    const city = JURISDICTIONS.find(j => j.code === code)?.name || 'Unknown';
+                    update(i, { threshold: code, operator: 'eq', label: `${city} pricing` });
+                  }} className={selectClass}>
+                    {JURISDICTIONS.map(j => <option key={j.code} value={j.code}>{j.name}</option>)}
+                  </select>
+                </>
               ) : (
-                <div className="flex items-center gap-1">
-                  <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
-                  {cond?.unit && <span className="text-[10px] text-pp-tertiary">{cond.unit}</span>}
-                </div>
+                <>
+                  <select value={rule.operator} onChange={e => update(i, { operator: e.target.value as PriceRule['operator'] })} className={`${selectClass} w-14 text-center`}>
+                    {OPERATORS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={rule.threshold} onChange={e => update(i, { threshold: Number(e.target.value) })} onFocus={selectOnFocus} className={inputClass} />
+                    {cond?.unit && <span className="text-[10px] text-pp-tertiary">{cond.unit}</span>}
+                  </div>
+                </>
               )}
 
               {rule.operator === 'between' && (
